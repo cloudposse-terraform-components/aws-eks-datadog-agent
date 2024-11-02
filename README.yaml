@@ -1,70 +1,219 @@
-name: "template"
-
+name: "aws-eks-datadog-agent"
 # Canonical GitHub repo
-github_repo: "cloudposse-terraform-components/template"
-
+github_repo: "cloudposse-terraform-components/aws-eks-datadog-agent"
 # Short description of this project
 description: |-
-  Description of this component
+  This component installs the `datadog-agent` for EKS clusters.
 
-usage: |-
-  **Stack Level**: Regional or Test47
+  ## Usage
 
-  Here's an example snippet for how to use this component.
-  
+  **Stack Level**: Regional
+
+  Use this in the catalog as default values.
+
   ```yaml
   components:
     terraform:
-      foo:
+      datadog-agent:
+        settings:
+          spacelift:
+            workspace_enabled: true
         vars:
           enabled: true
+          eks_component_name: eks/cluster
+          name: "datadog"
+          description: "Datadog Kubernetes Agent"
+          kubernetes_namespace: "monitoring"
+          create_namespace: true
+          repository: "https://helm.datadoghq.com"
+          chart: "datadog"
+          chart_version: "3.29.2"
+          timeout: 1200
+          wait: true
+          atomic: true
+          cleanup_on_fail: true
+          cluster_checks_enabled: false
+          helm_manifest_experiment_enabled: false
+          secrets_store_type: SSM
+          tags:
+            team: sre
+            service: datadog-agent
+            app: monitoring
+          # datadog-agent shouldn't be deployed to the Fargate nodes
+          values:
+            agents:
+              affinity:
+                nodeAffinity:
+                  requiredDuringSchedulingIgnoredDuringExecution:
+                    nodeSelectorTerms:
+                      - matchExpressions:
+                          - key: eks.amazonaws.com/compute-type
+                            operator: NotIn
+                            values:
+                              - fargate
+            datadog:
+              env:
+                - name: DD_EC2_PREFER_IMDSV2 # this merges ec2 instances and the node in the hostmap section
+                  value: "true"
   ```
 
+  Deploy this to a particular environment such as dev, prod, etc.
+
+  This will add cluster checks to a specific environment.
+
+  ```yaml
+  components:
+    terraform:
+      datadog-agent:
+        vars:
+          # Order affects merge order. Later takes priority. We append lists though.
+          datadog_cluster_check_config_paths:
+            - catalog/cluster-checks/defaults/*.yaml
+            - catalog/cluster-checks/dev/*.yaml
+          datadog_cluster_check_config_parameters: {}
+          # add additional tags to all data coming in from this agent.
+          datadog_tags:
+            - "env:dev"
+            - "region:us-west-2"
+            - "stage:dev"
+  ```
+
+  ## Cluster Checks
+
+  Cluster Checks are configurations that allow us to setup external URLs to be monitored. They can be configured through
+  the datadog agent or annotations on kubernetes services.
+
+  Cluster Checks are similar to synthetics checks, they are not as indepth, but significantly cheaper. Use Cluster Checks
+  when you need a simple health check beyond the kubernetes pod health check.
+
+  Public addresses that test endpoints must use the agent configuration, whereas service addresses internal to the cluster
+  can be tested by annotations.
+
+  ### Adding Cluster Checks
+
+  Cluster Checks can be enabled or disabled via the `cluster_checks_enabled` variable. We recommend this be set to true.
+
+  New Cluster Checks can be added to defaults to be applied in every account. Alternatively they can be placed in an
+  individual stage folder which will be applied to individual stages. This is controlled by the
+  `datadog_cluster_check_config_parameters` variable, which determines the paths of yaml files to look for cluster checks
+  per stage.
+
+  Once they are added, and properly configured, the new checks show up in the network monitor creation under `ssl` and
+  `Http`
+
+  **Please note:** the yaml file name doesn't matter, but the root key inside which is `something.yaml` does matter. this
+  is following
+  [datadogs docs](https://docs.datadoghq.com/agent/cluster_agent/clusterchecks/?tab=helm#configuration-from-static-configuration-files)
+  for `<integration name>.yaml`.
+
+  #### Sample Yaml
+
+  > [!WARNING]
+  >
+  > The key of a filename must match datadog docs, which is `<INTEGRATION_NAME>.yaml` >
+  > [Datadog Cluster Checks](https://docs.datadoghq.com/agent/cluster_agent/clusterchecks/?tab=helm#configuration-from-static-configuration-files)
+
+  Cluster Checks **can** be used for external URL testing (loadbalancer endpoints), whereas annotations **must** be used
+  for kubernetes services.
+
+  ```
+  http_check.yaml:
+    cluster_check: true
+    init_config:
+    instances:
+      - name: "[${stage}] Echo Server"
+        url: "https://echo.${stage}.uw2.acme.com"
+      - name: "[${stage}] Portal"
+        url: "https://portal.${stage}.uw2.acme.com"
+      - name: "[${stage}] ArgoCD"
+        url: "https://argocd.${stage}.uw2.acme.com"
+
+  ```
+
+  ### Monitoring Cluster Checks
+
+  Using Cloudposse's `datadog-monitor` component. The following yaml snippet will monitor all HTTP Cluster Checks, this
+  can be added to each stage (usually via a defaults folder).
+
+  ```yaml
+  https-checks:
+    name: "(Network Check) ${stage} - HTTPS Check"
+    type: service check
+    query: |
+      "http.can_connect".over("stage:${stage}").by("instance").last(2).count_by_status()
+    message: |
+      HTTPS Check failed on <code>{{instance.name}}</code>
+        in Stage: <code>{{stage.name}}</code>
+    escalation_message: ""
+    tags:
+      managed-by: Terraform
+    notify_no_data: false
+    notify_audit: false
+    require_full_window: true
+    enable_logs_sample: false
+    force_delete: true
+    include_tags: true
+    locked: false
+    renotify_interval: 0
+    timeout_h: 0
+    evaluation_delay: 0
+    new_host_delay: 0
+    new_group_delay: 0
+    no_data_timeframe: 2
+    threshold_windows: {}
+    thresholds:
+      critical: 1
+      warning: 1
+      ok: 1
+  ```
+
+  ## References
+
+  - https://github.com/DataDog/helm-charts/tree/main/charts/datadog
+  - https://github.com/DataDog/helm-charts/blob/main/charts/datadog/values.yaml
+  - https://github.com/DataDog/helm-charts/blob/main/examples/datadog/agent_basic_values.yaml
+  - https://registry.terraform.io/providers/hashicorp/helm/latest/docs/resources/release
+  - https://docs.datadoghq.com/agent/cluster_agent/clusterchecks/?tab=helm
+
+  <!-- prettier-ignore-start -->
+
+  <!-- prettier-ignore-end -->
+
+  ## References
+
+  - Datadog's [Kubernetes Agent documentation](https://docs.datadoghq.com/containers/kubernetes/)
+  - [cloudposse/terraform-aws-components](https://github.com/cloudposse/terraform-aws-components/tree/main/modules/datadog-agent) -
+    Cloud Posse's upstream component
 include:
   - "docs/terraform.md"
-
 tags:
-  - terraform
-  - terraform-modules
-  - aws
-  - components
-  - terraform-components
-  - root
-  - geodesic
-  - reference-implementation
-  - reference-architecture
-
+  - component/eks/datadog-agent
+  - layer/datadog
+  - provider/aws
+  - provider/helm
+  - provider/datadog
 # Categories of this project
 categories:
-  - terraform-modules/root
-  - terraform-components
-
+  - component/eks/datadog-agent
+  - layer/datadog
+  - provider/aws
+  - provider/helm
+  - provider/datadog
 # License of this project
 license: "APACHE2"
-
 # Badges to display
 badges:
-  - name: "Latest Release"
-    image: "https://img.shields.io/github/release/cloudposse-terraform-components/template.svg?style=for-the-badge"
-    url: "https://github.com/cloudposse-terraform-components/template/releases/latest"
-  - name: "Slack Community"
-    image: "https://slack.cloudposse.com/for-the-badge.svg"
-    url: "https://slack.cloudposse.com"
-
-references:
-  - name: "Cloud Posse Documentation"
-    description: "Complete documentation for the Cloud Posse solution"
-    url: "https://docs.cloudposse.com"
-  - name: "Reference Architectures"
-    description: "Launch effortlessly with our turnkey reference architectures, built either by your team or ours."
-    url: "https://cloudposse.com/"
-
+  - name: Latest Release
+    image: https://img.shields.io/github/release/cloudposse-terraform-components/aws-eks-datadog-agent.svg?style=for-the-badge
+    url: https://github.com/cloudposse-terraform-components/aws-eks-datadog-agent/releases/latest
+  - name: Slack Community
+    image: https://slack.cloudposse.com/for-the-badge.svg
+    url: https://slack.cloudposse.com
 related:
-- name: "Cloud Posse Terraform Modules"
-  description: Our collection of reusable Terraform modules used by our reference architectures.
-  url: "https://docs.cloudposse.com/modules/"
-- name: "Atmos"
-  description: "Atmos is like docker-compose but for your infrastructure"
-  url: "https://atmos.tools"
-
+  - name: "Cloud Posse Terraform Modules"
+    description: Our collection of reusable Terraform modules used by our reference architectures.
+    url: "https://docs.cloudposse.com/modules/"
+  - name: "Atmos"
+    description: "Atmos is like docker-compose but for your infrastructure"
+    url: "https://atmos.tools"
 contributors: [] # If included generates contribs
