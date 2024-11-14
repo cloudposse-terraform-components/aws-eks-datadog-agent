@@ -1,4 +1,9 @@
-output "mock" {
-  description = "Mock output example for the Cloud Posse Terraform component template"
-  value       = local.enabled ? "hello ${basename(abspath(path.module))}" : ""
+output "metadata" {
+  value       = local.enabled ? module.datadog_agent.metadata : null
+  description = "Block status of the deployed release"
+}
+
+output "cluster_checks" {
+  value       = local.datadog_cluster_checks
+  description = "Cluster Checks for the cluster"
 }
