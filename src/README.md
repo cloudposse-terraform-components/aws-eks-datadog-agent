@@ -7,7 +7,7 @@ tags:
   - provider/datadog
 ---
 
-# Component: `eks`
+# Component: `eks-datadog-agent`
 
 This component installs the `datadog-agent` for EKS clusters.
 
