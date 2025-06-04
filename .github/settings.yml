@@ -5,3 +5,11 @@ repository:
   description: This component installs the `datadog-agent` for EKS clusters
   homepage: https://cloudposse.com/accelerate
   topics: terraform, terraform-component
+
+
+
+
+
+
+
+
