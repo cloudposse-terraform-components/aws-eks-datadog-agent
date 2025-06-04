@@ -87,7 +87,7 @@ module "values_merge" {
 
 module "datadog_agent" {
   source  = "cloudposse/helm-release/aws"
-  version = "0.10.0"
+  version = "0.10.1"
 
   name          = module.this.name
   chart         = var.chart
