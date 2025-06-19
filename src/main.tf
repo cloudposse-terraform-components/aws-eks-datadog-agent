@@ -48,7 +48,7 @@ locals {
 }
 
 module "datadog_configuration" {
-  source  = "github.com/cloudposse-terraform-components/aws-datadog-credentials//src/modules/datadog_keys?ref=tags/v1.535.2"
+  source  = "github.com/cloudposse-terraform-components/aws-datadog-credentials//src/modules/datadog_keys?ref=v1.535.2"
   context = module.this.context
 }
 
