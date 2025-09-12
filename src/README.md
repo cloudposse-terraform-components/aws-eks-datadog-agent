@@ -10,7 +10,6 @@ tags:
 # Component: `eks-datadog-agent`
 
 This component installs the `datadog-agent` for EKS clusters.
-
 ## Usage
 
 **Stack Level**: Regional
@@ -173,16 +172,11 @@ https-checks:
     ok: 1
 ```
 
-## References
-
-- https://github.com/DataDog/helm-charts/tree/main/charts/datadog
-- https://github.com/DataDog/helm-charts/blob/main/charts/datadog/values.yaml
-- https://github.com/DataDog/helm-charts/blob/main/examples/datadog/agent_basic_values.yaml
-- https://registry.terraform.io/providers/hashicorp/helm/latest/docs/resources/release
-- https://docs.datadoghq.com/agent/cluster_agent/clusterchecks/?tab=helm
-
 <!-- prettier-ignore-start -->
-<!-- BEGINNING OF PRE-COMMIT-TERRAFORM DOCS HOOK -->
+<!-- prettier-ignore-end -->
+
+
+<!-- markdownlint-disable -->
 ## Requirements
 
 | Name | Version |
@@ -277,13 +271,29 @@ https-checks:
 |------|-------------|
 | <a name="output_cluster_checks"></a> [cluster\_checks](#output\_cluster\_checks) | Cluster Checks for the cluster |
 | <a name="output_metadata"></a> [metadata](#output\_metadata) | Block status of the deployed release |
-<!-- END OF PRE-COMMIT-TERRAFORM DOCS HOOK -->
-<!-- prettier-ignore-end -->
+<!-- markdownlint-restore -->
+
+
 
 ## References
 
-- Datadog's [Kubernetes Agent documentation](https://docs.datadoghq.com/containers/kubernetes/)
-- [cloudposse/terraform-aws-components](https://github.com/cloudposse/terraform-aws-components/tree/main/modules/datadog-agent) -
-  Cloud Posse's upstream component
+
+- [https://github.com/DataDog/helm-charts/tree/main/charts/datadog](https://github.com/DataDog/helm-charts/tree/main/charts/datadog) - 
+
+- [https://github.com/DataDog/helm-charts/blob/main/charts/datadog/values.yaml](https://github.com/DataDog/helm-charts/blob/main/charts/datadog/values.yaml) - 
+
+- [https://github.com/DataDog/helm-charts/blob/main/examples/datadog/agent_basic_values.yaml](https://github.com/DataDog/helm-charts/blob/main/examples/datadog/agent_basic_values.yaml) - 
+
+- [https://registry.terraform.io/providers/hashicorp/helm/latest/docs/resources/release](https://registry.terraform.io/providers/hashicorp/helm/latest/docs/resources/release) - 
+
+- [https://docs.datadoghq.com/agent/cluster_agent/clusterchecks/?tab=helm](https://docs.datadoghq.com/agent/cluster_agent/clusterchecks/?tab=helm) - 
+
+- [Datadog's Kubernetes Agent documentation](https://docs.datadoghq.com/containers/kubernetes/) - 
+
+- [cloudposse-terraform-components](https://github.com/orgs/cloudposse-terraform-components/repositories) - Cloud Posse's upstream component
+
+
+
 
 [<img src="https://cloudposse.com/logo-300x69.svg" height="32" align="right"/>](https://cpco.io/homepage?utm_source=github&utm_medium=readme&utm_campaign=cloudposse-terraform-components/aws-eks-datadog-agent&utm_content=)
+
