@@ -215,7 +215,7 @@ https-checks:
 |------|--------|---------|
 | <a name="module_datadog_agent"></a> [datadog\_agent](#module\_datadog\_agent) | cloudposse/helm-release/aws | 0.10.1 |
 | <a name="module_datadog_cluster_check_yaml_config"></a> [datadog\_cluster\_check\_yaml\_config](#module\_datadog\_cluster\_check\_yaml\_config) | cloudposse/config/yaml | 1.0.2 |
-| <a name="module_datadog_configuration"></a> [datadog\_configuration](#module\_datadog\_configuration) | github.com/cloudposse-terraform-components/aws-datadog-credentials//src/modules/datadog_keys | v1.535.9 |
+| <a name="module_datadog_configuration"></a> [datadog\_configuration](#module\_datadog\_configuration) | github.com/cloudposse-terraform-components/aws-datadog-credentials//src/modules/datadog_keys | v1.535.10 |
 | <a name="module_eks"></a> [eks](#module\_eks) | cloudposse/stack-config/yaml//modules/remote-state | 1.8.0 |
 | <a name="module_iam_roles"></a> [iam\_roles](#module\_iam\_roles) | ../../account-map/modules/iam-roles | n/a |
 | <a name="module_this"></a> [this](#module\_this) | cloudposse/label/null | 0.25.0 |
