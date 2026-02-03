@@ -132,7 +132,7 @@ module "datadog_agent" {
     {
       name  = "datadog.tags"
       type  = "auto"
-      value = yamlencode(local.datadog_tags)
+      value = jsonencode(tolist(local.datadog_tags))
     },
     {
       name  = "datadog.clusterName"
