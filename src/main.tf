@@ -132,7 +132,7 @@ module "datadog_agent" {
     {
       name  = "datadog.tags"
       type  = "auto"
-      value = jsonencode(tolist(local.datadog_tags))
+      value = "{${join(",", [for tag in local.datadog_tags : tag])}}"
     },
     {
       name  = "datadog.clusterName"
