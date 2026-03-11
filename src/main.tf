@@ -1,8 +1,6 @@
 locals {
   enabled = module.this.enabled
 
-  tags = module.this.tags
-
   datadog_api_key = module.datadog_configuration.datadog_api_key
   datadog_app_key = module.datadog_configuration.datadog_app_key
   datadog_site    = module.datadog_configuration.datadog_site
