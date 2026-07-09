@@ -20,7 +20,7 @@ locals {
     lower(k) => v
   }
 
-  deep_map_merge = local.cluster_checks_enabled ? module.datadog_cluster_check_yaml_config[0].map_configs : {}
+  deep_map_merge = local.cluster_checks_enabled ? module.datadog_cluster_check_yaml_config[0].map_configs : tomap({})
   datadog_cluster_checks = {
     for k, v in local.deep_map_merge :
     k => merge(v, {
